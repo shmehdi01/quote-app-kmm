@@ -8,7 +8,7 @@ class AppPreferenceImpl(private val context: KContext): AppPreference {
 
 
     override fun saveToken(key: String, token: String) {
-        context.putString("token", token)
+        context.putString(key, token)
     }
 
     override fun getToken(key: String):String? {
