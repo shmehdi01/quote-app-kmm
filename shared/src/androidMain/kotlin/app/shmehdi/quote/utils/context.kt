@@ -1,5 +1,5 @@
 package app.shmehdi.quote.utils
 
-import android.app.Activity
+import android.app.Application
 
-actual typealias KContext = Activity
+actual typealias KContext = Application
