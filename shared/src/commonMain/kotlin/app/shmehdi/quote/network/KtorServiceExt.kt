@@ -16,26 +16,29 @@ suspend inline fun <reified D> KtorService.safeApiCall(endpoints: String, apiHas
                 data = response
             )
         }
-        else client.get(baseUrl + endpoints)
+        else client.post(baseUrl + endpoints)
     } catch (e: Exception) {
-        print("$e")
-        when (e) {
-            is ClientRequestException -> {
-                BaseResponse(
-                    status = false,
-                    code = e.response.status.value,
-                    message = e.message ?: SOMETHING_WENT_WRONG,
-                    data = null
-                )
-            }
-            else -> {
-                BaseResponse(
-                    status = false,
-                    code = UNKNOWN_ERROR,
-                    message = e.message ?: SOMETHING_WENT_WRONG,
-                    data = null
-                )
-            }
+        e.handleErrors()
+    }
+}
+
+fun <D> Exception.handleErrors(): BaseResponse<D> {
+    return when (this) {
+        is ClientRequestException -> {
+            BaseResponse(
+                status = false,
+                code = response.status.value,
+                message = message ?: SOMETHING_WENT_WRONG,
+                data = null
+            )
+        }
+        else -> {
+            BaseResponse(
+                status = false,
+                code = UNKNOWN_ERROR,
+                message = message ?: SOMETHING_WENT_WRONG,
+                data = null
+            )
         }
     }
 }
