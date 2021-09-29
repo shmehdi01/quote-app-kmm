@@ -10,7 +10,9 @@ const val SOMETHING_WENT_WRONG = "Something went wrong"
 
 suspend inline fun <reified D> KtorService.postApiCall(endpoints: String, body: Any): BaseResponse<D> {
     return try {
-         client.post(host = baseUrl, path = endpoints, body = body)
+         client.post(baseUrl + endpoints) {
+             this.body = body
+         }
     } catch (e: Exception) {
         e.handleErrors()
     }
@@ -18,7 +20,7 @@ suspend inline fun <reified D> KtorService.postApiCall(endpoints: String, body: 
 
 suspend inline fun <reified D> KtorService.getApiCall(endpoints: String): BaseResponse<D> {
     return try {
-        client.get(host = baseUrl, path = endpoints)
+        client.get(baseUrl + endpoints)
     } catch (e: Exception) {
         e.handleErrors()
     }
@@ -26,7 +28,9 @@ suspend inline fun <reified D> KtorService.getApiCall(endpoints: String): BaseRe
 
 suspend inline fun <reified D> KtorService.putApiCall(endpoints: String, body: Any): BaseResponse<D> {
     return try {
-        client.put(host = baseUrl, path = endpoints, body = body)
+        client.put(baseUrl +endpoints) {
+            this.body = body
+        }
     } catch (e: Exception) {
         e.handleErrors()
     }
@@ -34,7 +38,7 @@ suspend inline fun <reified D> KtorService.putApiCall(endpoints: String, body: A
 
 suspend inline fun <reified D> KtorService.deleteApiCall(endpoints: String): BaseResponse<D> {
     return try {
-        client.put(host = baseUrl, path = endpoints)
+        client.put(baseUrl + endpoints)
     } catch (e: Exception) {
         e.handleErrors()
     }
