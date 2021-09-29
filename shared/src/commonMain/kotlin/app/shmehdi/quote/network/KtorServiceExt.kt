@@ -7,20 +7,39 @@ import app.shmehdi.quote.models.dto.BaseResponse
 const val UNKNOWN_ERROR = -1
 const val SOMETHING_WENT_WRONG = "Something went wrong"
 
-suspend inline fun <reified D> KtorService.safeApiCall(endpoints: String, apiHasNoBaseResponse: Boolean = false): BaseResponse<D> {
+
+suspend inline fun <reified D> KtorService.postApiCall(endpoints: String, body: Any): BaseResponse<D> {
     return try {
-        if (apiHasNoBaseResponse) {
-            val response = client.get<D>(baseUrl + endpoints)
-            BaseResponse(
-                status = true,
-                data = response
-            )
-        }
-        else client.post(baseUrl + endpoints)
+         client.post(host = baseUrl, path = endpoints, body = body)
     } catch (e: Exception) {
         e.handleErrors()
     }
 }
+
+suspend inline fun <reified D> KtorService.getApiCall(endpoints: String): BaseResponse<D> {
+    return try {
+        client.get(host = baseUrl, path = endpoints)
+    } catch (e: Exception) {
+        e.handleErrors()
+    }
+}
+
+suspend inline fun <reified D> KtorService.putApiCall(endpoints: String, body: Any): BaseResponse<D> {
+    return try {
+        client.put(host = baseUrl, path = endpoints, body = body)
+    } catch (e: Exception) {
+        e.handleErrors()
+    }
+}
+
+suspend inline fun <reified D> KtorService.deleteApiCall(endpoints: String): BaseResponse<D> {
+    return try {
+        client.put(host = baseUrl, path = endpoints)
+    } catch (e: Exception) {
+        e.handleErrors()
+    }
+}
+
 
 fun <D> Exception.handleErrors(): BaseResponse<D> {
     return when (this) {

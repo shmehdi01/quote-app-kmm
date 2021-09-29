@@ -9,10 +9,10 @@ import io.ktor.client.*
 class KtorService(val baseUrl: String, val client: HttpClient) : ApiService {
 
     override suspend fun login(request: LoginRequest): BaseResponse<AuthResponse> =
-        safeApiCall(endpoints = "login")
+        postApiCall(endpoints = "login", request)
 
 
     override suspend fun register(request: RegisterRequest): BaseResponse<AuthResponse> =
-        safeApiCall(endpoints = "register")
+        postApiCall(endpoints = "register", request)
 
 }
