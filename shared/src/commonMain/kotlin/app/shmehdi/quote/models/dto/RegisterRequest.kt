@@ -3,10 +3,14 @@ package app.shmehdi.quote.models.dto
 
 import app.shmehdi.quote.errors.ValidationError
 import app.shmehdi.quote.models.pojo.User
+import kotlinx.serialization.SerialName
 
 data class RegisterRequest(
+    @SerialName("name")
     val name: String,
+    @SerialName("email")
     val email: String,
+    @SerialName("password")
     val password: String
 )
 
