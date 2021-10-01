@@ -1,23 +1,26 @@
 package app.shmehdi.quote.android.base
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import app.shmehdi.quote.android.ui.states.UIState
 import shmehdi.app.estore.vo.ErrorResource
 
 abstract class BaseViewModel: ViewModel() {
 
-    private val loader = MutableLiveData<Boolean>()
-    private val _error = MutableLiveData<ErrorResource>()
 
-    val isLoading get() = loader as LiveData<Boolean>
-    val error get() = _error as LiveData<ErrorResource>
-
-    fun notifyLoading(isLoading: Boolean) {
-        loader.value = isLoading
+    fun notifyLoading() {
+        state.value = UIState.Loading
     }
 
     fun notifyError(errorResource: ErrorResource?) {
-        _error.value = errorResource ?: ErrorResource("", -1)
+        state.value = UIState.Error(errorResource ?: ErrorResource("", -1))
     }
+
+    fun notifySuccess(uiState: UIState) {
+        state.value = uiState
+    }
+
+    val state = mutableStateOf<UIState>(UIState.Idle)
+
+    //inline fun<reified T> getState() = state as State<T>
 }
