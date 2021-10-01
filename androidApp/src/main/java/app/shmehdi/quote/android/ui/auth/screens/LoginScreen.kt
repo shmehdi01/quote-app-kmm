@@ -1,15 +1,14 @@
 package app.shmehdi.quote.android.ui.auth.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,15 +22,20 @@ import androidx.compose.ui.unit.dp
 import app.shmehdi.quote.android.navigation.Action
 import app.shmehdi.quote.android.navigation.Routes
 import app.shmehdi.quote.android.ui.auth.AuthViewModel
+import app.shmehdi.quote.android.ui.states.UIState
 import app.shmehdi.quote.models.dto.LoginRequest
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
 fun LoginScreen(action: Action, viewModel: AuthViewModel) {
 
-    val email = rememberSaveable { mutableStateOf("") }
-    val password = rememberSaveable { mutableStateOf("") }
+    val email = rememberSaveable { mutableStateOf("mehdi@gmail.com") }
+    val password = rememberSaveable { mutableStateOf("password") }
     val passwordVisibility = remember { mutableStateOf(false) }
+
+    val uiState = viewModel.state
+
+    ErrorDialog(state = uiState)
 
     Column(
         modifier = Modifier
@@ -39,15 +43,24 @@ fun LoginScreen(action: Action, viewModel: AuthViewModel) {
             .padding(20.dp),
     ) {
 
+
         LoginHeader()
 
         LoginForm(email, password, passwordVisibility)
 
-        LoginButton {
-            viewModel.login(LoginRequest(email.value, password.value))
+        if (uiState.value is UIState.Loading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else {
+            LoginButton {
+                logD("Login Clicked")
+                viewModel.login(LoginRequest(email.value, password.value))
+            }
         }
 
         RegisterButton(Modifier.align(Alignment.CenterHorizontally)) {
+            viewModel.appPreference.getToken("token")?.let {
+                logD("TOKEN $it")
+            }
             action.navigate(Routes.REGISTER)
         }
 
@@ -172,4 +185,28 @@ private fun RegisterButton(modifier: Modifier, onClick: () -> Unit) {
             )
         )
     }
+}
+
+@Composable
+fun ErrorDialog(state: MutableState<UIState>, title: String = "Error") {
+    if (state.value is UIState.Error) {
+        val error = (state.value as UIState.Error).resource?.errorMessage ?: ""
+        AlertDialog(onDismissRequest = {
+            state.value = UIState.Idle
+        }, title = {
+            Text(text = title)
+        }, text = {
+            Text(text =  error)
+        }, confirmButton = {
+            TextButton(onClick = {
+                state.value = UIState.Idle
+            }) {
+                Text(text = "Got It")
+            }
+        })
+    }
+}
+
+fun logD(text: String) {
+    Log.d("SYED", text)
 }
