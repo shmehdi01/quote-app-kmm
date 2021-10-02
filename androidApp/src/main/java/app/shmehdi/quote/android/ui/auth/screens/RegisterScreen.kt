@@ -27,9 +27,12 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import app.shmehdi.quote.android.navigation.Action
+import app.shmehdi.quote.android.ui.auth.AuthViewModel
+import app.shmehdi.quote.models.dto.RegisterRequest
 
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(action: Action, viewModel: AuthViewModel) {
 
     val name = rememberSaveable { mutableStateOf("") }
     val email = rememberSaveable { mutableStateOf("") }
@@ -45,7 +48,11 @@ fun RegisterScreen() {
         RegisterForm(name, email , password  , passwordVisibility  )
 
         CreateButton {
-
+            viewModel.register(request = RegisterRequest(
+                name = name.value,
+                email = email.value,
+                password = password.value
+            ))
         }
 
         LoginButton(modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -176,8 +183,8 @@ private fun LoginButton(modifier: Modifier, onClick: () -> Unit) {
 }
 
 
-@Preview(showSystemUi = true)
-@Composable
-fun RegisterScreenPreview() {
-    RegisterScreen()
-}
+//@Preview(showSystemUi = true)
+//@Composable
+//fun RegisterScreenPreview() {
+//    RegisterScreen()
+//}

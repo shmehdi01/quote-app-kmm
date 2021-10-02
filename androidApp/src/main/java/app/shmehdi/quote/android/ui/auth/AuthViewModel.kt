@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import app.shmehdi.quote.android.base.BaseViewModel
 import app.shmehdi.quote.android.ui.states.AuthUIState
 import app.shmehdi.quote.models.dto.LoginRequest
+import app.shmehdi.quote.models.dto.RegisterRequest
 import app.shmehdi.quote.repository.AuthRepository
 import app.shmehdi.quote.utils.preference.AppPreference
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +29,26 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository):
                     }
                     Status.LOADING -> {
                        notifyLoading()
+                    }
+                    Status.ERROR -> {
+                        notifyError(resource.error)
+                    }
+                }
+            }
+        }
+    }
+
+    fun register(request: RegisterRequest) {
+        viewModelScope.launch {
+            repository.register(request).collectCommon { resource ->
+
+                when(resource.status) {
+                    Status.SUCCESS -> {
+                        appPreference.saveToken("token", resource.data?.token!!)
+                        notifySuccess(AuthUIState.AuthSuccess(resource.data!!))
+                    }
+                    Status.LOADING -> {
+                        notifyLoading()
                     }
                     Status.ERROR -> {
                         notifyError(resource.error)
