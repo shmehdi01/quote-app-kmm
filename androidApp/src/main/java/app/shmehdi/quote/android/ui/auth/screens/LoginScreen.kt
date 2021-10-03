@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import app.shmehdi.quote.android.navigation.Action
 import app.shmehdi.quote.android.navigation.Routes
 import app.shmehdi.quote.android.ui.auth.AuthViewModel
+import app.shmehdi.quote.android.ui.components.ErrorDialog
 import app.shmehdi.quote.android.ui.states.UIState
 import app.shmehdi.quote.models.dto.LoginRequest
 
@@ -184,26 +185,6 @@ private fun RegisterButton(modifier: Modifier, onClick: () -> Unit) {
                 textDecoration = TextDecoration.Underline
             )
         )
-    }
-}
-
-@Composable
-fun ErrorDialog(state: MutableState<UIState>, title: String = "Error") {
-    if (state.value is UIState.Error) {
-        val error = (state.value as UIState.Error).resource?.errorMessage ?: ""
-        AlertDialog(onDismissRequest = {
-            state.value = UIState.Idle
-        }, title = {
-            Text(text = title)
-        }, text = {
-            Text(text =  error)
-        }, confirmButton = {
-            TextButton(onClick = {
-                state.value = UIState.Idle
-            }) {
-                Text(text = "Got It")
-            }
-        })
     }
 }
 
