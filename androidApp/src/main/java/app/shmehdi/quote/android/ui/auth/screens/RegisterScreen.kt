@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import app.shmehdi.quote.android.navigation.Action
 import app.shmehdi.quote.android.ui.auth.AuthViewModel
+import app.shmehdi.quote.android.ui.components.ErrorDialog
 import app.shmehdi.quote.models.dto.RegisterRequest
 
 @Composable
@@ -38,6 +39,9 @@ fun RegisterScreen(action: Action, viewModel: AuthViewModel) {
     val email = rememberSaveable { mutableStateOf("") }
     val password = rememberSaveable { mutableStateOf("") }
     val passwordVisibility = remember { mutableStateOf(false) }
+
+    val uiState = viewModel.state
+    ErrorDialog(state = uiState) // If UIState is Error dialog will show.
 
     Column(modifier = Modifier
         .fillMaxSize()
