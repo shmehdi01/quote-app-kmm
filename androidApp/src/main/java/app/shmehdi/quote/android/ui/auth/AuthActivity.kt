@@ -43,7 +43,7 @@ class AuthActivity: ComponentActivity() {
                 LoginScreen(action, viewModel)
             }
             composable(route = Routes.REGISTER) {
-                RegisterScreen()
+                RegisterScreen(action, viewModel)
             }
         }
     }
