@@ -1,24 +1,46 @@
 package app.shmehdi.quote.android.ui.auth.screens
 
 import android.util.Log
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
+import androidx.compose.material.contentColorFor
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.ExperimentalUnitApi
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.shmehdi.quote.android.navigation.Action
 import app.shmehdi.quote.android.navigation.Routes
 import app.shmehdi.quote.android.ui.auth.AuthViewModel
@@ -26,13 +48,12 @@ import app.shmehdi.quote.android.ui.components.ErrorDialog
 import app.shmehdi.quote.android.ui.states.UIState
 import app.shmehdi.quote.models.dto.LoginRequest
 
-@OptIn(ExperimentalUnitApi::class)
 @Composable
 fun LoginScreen(action: Action, viewModel: AuthViewModel) {
 
-    val email = rememberSaveable { mutableStateOf("mehdi@gmail.com") }
-    val password = rememberSaveable { mutableStateOf("password") }
-    val passwordVisibility = remember { mutableStateOf(false) }
+    var email by rememberSaveable { mutableStateOf("mehdi@gmail.com") }
+    var password by rememberSaveable { mutableStateOf("password") }
+    var passwordVisibility by remember { mutableStateOf(false) }
 
     val uiState = viewModel.state
 
@@ -41,150 +62,136 @@ fun LoginScreen(action: Action, viewModel: AuthViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .background(Color(0xFFF5F2FA))
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center
     ) {
-
-
         LoginHeader()
-
-        LoginForm(email, password, passwordVisibility)
-
-        if (uiState.value is UIState.Loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else {
-            LoginButton {
-                logD("Login Clicked")
-                viewModel.login(LoginRequest(email.value, password.value))
-            }
+        Spacer(modifier = Modifier.height(32.dp))
+        LoginForm(
+            email = email,
+            password = password,
+            passwordVisibility = passwordVisibility,
+            onEmailChange = { email = it },
+            onPasswordChange = { password = it },
+            onPasswordVisibility = { passwordVisibility = !passwordVisibility },
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        LoadingButton(
+            text = "Login",
+            isLoading = uiState.value is UIState.Loading,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            logD("Login Clicked")
+            viewModel.login(LoginRequest(email, password))
         }
-
-        RegisterButton(Modifier.align(Alignment.CenterHorizontally)) {
-            viewModel.appPreference.getToken("token")?.let {
-                logD("TOKEN $it")
-            }
-            action.navigate(Routes.REGISTER)
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(
+            text = "New User? Create Account",
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .clickable {
+                    viewModel.appPreference.getToken("token")?.let {
+                        logD("TOKEN $it")
+                    }
+                    action.navigate(Routes.REGISTER)
+                },
+            color = Color(0xFF555555)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "Made ❤️ with Kotlin",
-            modifier = Modifier
-                .padding(start = 12.dp, top = 10.dp)
-                .align(Alignment.CenterHorizontally),
-            style = TextStyle(
-                fontSize = TextUnit(14f, TextUnitType.Sp),
-                fontWeight = FontWeight.Normal
-            )
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            color = Color(0xFF555555)
         )
-
     }
 }
 
-@OptIn(ExperimentalUnitApi::class)
 @Composable
 private fun LoginHeader() {
-    Column {
-        Text(
-            text = "Login",
-            modifier = Modifier.padding(start = 12.dp, top = 30.dp),
-            style = TextStyle(
-                fontSize = TextUnit(24f, TextUnitType.Sp),
-                fontWeight = FontWeight.Bold
-            )
-        )
-        Text(
-            text = "Lots of quote waiting for you",
-            modifier = Modifier.padding(start = 12.dp, top = 10.dp),
-            style = TextStyle(
-                fontSize = TextUnit(14f, TextUnitType.Sp),
-                fontWeight = FontWeight.Normal
-            )
-        )
-    }
+    Text(
+        text = "Login",
+        color = Color(0xFF614F91),
+        fontSize = 32.sp,
+        fontWeight = FontWeight.Bold
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    Text(text = "Lots of quote waiting for you", color = Color(0xFF555555))
 }
 
 @Composable
 private fun LoginForm(
-    email: MutableState<String>,
-    password: MutableState<String>,
-    passwordVisibility: MutableState<Boolean>
+    email: String,
+    password: String,
+    passwordVisibility: Boolean,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onPasswordVisibility: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 12.dp)
-    ) {
-        TextField(
-            value = email.value,
-            onValueChange = {
-                email.value = it
-            },
-            placeholder = {
-                Text("Email")
-            },
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .fillMaxWidth()
-        )
-
-        TextField(
-            value = password.value,
-            onValueChange = {
-                password.value = it
-            },
-            placeholder = {
-                Text("Password")
-            },
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .fillMaxWidth(),
-            visualTransformation = if (passwordVisibility.value) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            trailingIcon = {
-                val text = if (passwordVisibility.value)
-                    "Hide"
-                else "Show"
-
-                TextButton(onClick = {
-                    passwordVisibility.value = !passwordVisibility.value
-                }) {
-                    Text(text)
-                }
+    OutlinedTextField(
+        value = email,
+        onValueChange = onEmailChange,
+        placeholder = { Text(text = "Email") },
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    OutlinedTextField(
+        value = password,
+        onValueChange = onPasswordChange,
+        placeholder = { Text(text = "Password") },
+        trailingIcon = {
+            IconButton(onClick = onPasswordVisibility) {
+                Icon(
+                    imageVector = if (passwordVisibility) {
+                        Icons.Outlined.Visibility
+                    } else {
+                        Icons.Outlined.VisibilityOff
+                    },
+                    contentDescription = null
+                )
             }
-        )
-    }
-
+        },
+        visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
-private fun LoginButton(onClick: () -> Unit) {
+private fun LoadingButton(
+    modifier: Modifier = Modifier,
+    isLoading: Boolean,
+    text: String,
+    onClick: () -> Unit
+) {
+    val width by animateDpAsState(targetValue = if (isLoading) 46.dp else 224.dp)
     Button(
-        onClick = onClick, modifier = Modifier
-            .padding(12.dp)
-            .fillMaxWidth()
-    ) {
-        Text("Login")
-    }
-}
-
-@OptIn(ExperimentalUnitApi::class)
-@Composable
-private fun RegisterButton(modifier: Modifier, onClick: () -> Unit) {
-    TextButton(
+        shape = RoundedCornerShape(if (isLoading) 100.dp else 24.dp),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color(0xFF89C8A5),
+            disabledBackgroundColor = Color(0xFF89C8A5),
+            disabledContentColor = contentColorFor(Color(0xFF89C8A5))
+        ),
+        enabled = !isLoading,
         onClick = onClick,
-        modifier = modifier
+        contentPadding = PaddingValues(0.dp),
+        modifier = Modifier
+            .height(46.dp)
+            .width(width)
+            .then(modifier)
     ) {
-        Text(
-            text = "New User? Create Account",
-            modifier = Modifier.padding(start = 12.dp, top = 10.dp),
-
-            style = TextStyle(
-                fontSize = TextUnit(14f, TextUnitType.Sp),
-                fontWeight = FontWeight.Normal,
-                textDecoration = TextDecoration.Underline
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(36.dp),
+                color = Color.White,
+                strokeWidth = 3.dp
             )
-        )
+        } else {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.button,
+                color = Color.White
+            )
+        }
     }
 }
 
