@@ -25,6 +25,8 @@ dependencies {
     //COMPOSE
     // Integration with activities
     implementation ("androidx.activity:activity-compose:1.3.1")
+    // Compose Material Icons
+    implementation ("androidx.compose.material:material-icons-extended:1.1.1")
     // Compose Material Design
     implementation ("androidx.compose.material:material:1.0.1")
     // Animations
